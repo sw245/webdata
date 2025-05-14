@@ -28,10 +28,13 @@ time.sleep(3)
 
 # input('왜 다른 페이지인데...')
 
-click_xpath = ['/html/body/div[1]/div/div[3]/div/div[2]/div/div[1]/a[1]',      # 호텔/리조트
+click_xpath = ['/html/body/div[1]/div/div[3]/div/div[2]/div/div[1]/a[11]/div/span[1]/img',      # 호텔/리조트
+                # '/html/body/div[1]/div/div[3]/div/div[2]/div/div[1]/a[1]',      # 호텔/리조트
                '/html/body/div[1]/div/div[2]/div/div[1]/div/div[1]/button',     # 지역선택
-               '//*[@id="_MODAL_DIM_"]/div/section/div[2]/div[1]/button[3]',    # 제주
-               '//*[@id="_MODAL_DIM_"]/div/section/div[2]/div[2]/div/div/button[2]',    # 서귀포/모슬포
+                # '//*[@id="_MODAL_DIM_"]/div/section/div[2]/div[1]/button[3]',    # 제주
+               '/html/body/div[5]/div/div/div/div/div/div[1]/button[3]',    # 제주
+            #    '//*[@id="_MODAL_DIM_"]/div/section/div[2]/div[2]/div/div/button[2]',    # 서귀포/모슬포
+                '/html/body/div[5]/div/div/div/div/div/div[2]/div[1]/a[2]',     # 서귀포시/모슬포
                '/html/body/div[1]/div/div[1]/div[1]/header/div[2]/div/button[1]',       # 날짜선택    
                '//*[@id="day-picker-2025-06"]/div[2]/div[1]/div[7]/button',     # 6/7
                '//*[@id="day-picker-2025-06"]/div[2]/div[2]/div[1]/button',     # 6/8
@@ -42,6 +45,7 @@ for i in range(len(click_xpath)):
     elem = browser.find_element(By.XPATH,click_xpath[i])
     elem.click()
     time.sleep(2)
+    # input('stop')
     
 # 스크롤 내리기 (자바스크립트 활용)
 
@@ -53,6 +57,8 @@ while True:
     if curr_height == prev_height: break        # 늘어난 높이와 이전 높이가 같으면 (늘어나지 않았으면) 반복문 끝
     prev_height = curr_height       # 이전 높이 업데이트 (다시 늘리기 전 현재 높이)
     
+
+
 
 
 input('...')
