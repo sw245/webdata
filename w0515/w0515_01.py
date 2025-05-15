@@ -24,64 +24,60 @@ options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) Apple
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 
-
-## 퀴즈 ##
-# 신문사, 기사 제목 >> news.csv파일 저장
-# 파일첨부 메일로 발생
-# 제목: 네이버 뉴스랭킹 보냄
-# 내용: 네이버 12개 랭킹 1위 뉴스를 보냅니다.
-# 수신인 : onulee@naver.com
-
-
-# csv 파일로 저장
-
-ff = open('webdata/w0514/news.csv','w',encoding='utf-8',newline='')
-writer = csv.writer(ff)
-
-writer.writerow(['언론사','뉴스 헤드라인'])
-
 # selenium 브라우저 동작
 browser = webdriver.Chrome(options=options)
 
 url = 'https://news.naver.com/main/ranking/popularDay.naver'
 browser.get(url)
-time.sleep(2)
 
 
+soup = BeautifulSoup(browser.page_source,'lxml')
 
-# 뉴스 긁어오기
+f = open('w0515/news.csv','w',encoding='utf-8',newline='')
+write = csv.writer(f)
 
-for i in range(12):
-    browser.find_element(By.XPATH,f'//*[@id="wrap"]/div[4]/div[2]/div/div[{i+1}]/ul/li[1]/div/a').click()
-    time.sleep(2)
+title = ['언론사','기사제목']
+write.writerow(title)       # csv에 리스트를 저장 
+
+# 전체 기사 박스
+data = soup.find('div',{'class':'rankingnews_box_wrap _popularRanking'})
+
+# 언론사 별 박스
+r_news = data.find_all('div',{'class':'rankingnews_box'})
+
+# 언론사 이름
+# journal = r_news[0].find('strong',{'class':'rankingnews_name'}).get_text().strip()
+# headline = r_news[0].find('a',{'class':'list_title'}).get_text().strip()
+
+for r in r_news:
+    journal = r.find('strong',{'class':'rankingnews_name'}).get_text().strip()
+    headline1 = r.find_all('a',{'class':'list_title'})[0].get_text().strip()
+    headline2 = r.find_all('a',{'class':'list_title'})[1].get_text().strip()
+    write.writerow([journal,headline1,headline2])
     
-    soup = BeautifulSoup(browser.page_source,'lxml')
-    journal = soup.find('span',{'class':'media_end_head_top_logo_text light_type _LAZY_LOADING_ERROR_SHOW'}).get_text()
-    title = soup.find('h2',{'id':'title_area'}).span.get_text()
-    writer.writerow([journal,title])
-    
-    browser.back()
-    time.sleep(2)
 
+f.close()    
 
-ff.close()
+input('s')
 
-input('ok')
 
 
 # MIME 객체화
 msg = MIMEMultipart('alternative')
 
 # 정보
-send_email = ''
-recvMails = ['','']
-password = ''
+send_email = 'x_xitt@naver.com'
+recvMails = 'x_xitt@naver.com'
+password = 'N77MXDMPGXSC'
 smtpName = "smtp.naver.com"
 smtpPort = 587
 
 # 메일 내용
-text = MIMEText('네이버 12개 랭킹 1위 뉴스를 보냅니다.')
-msg.attach(text)
+html = MIMEText("""<h2>랭킹뉴스 기사모음</h2>
+<img src='https://mail.naver.com/read/image/original/?mimeSN=1747271404.399860.348.14080&offset=1742&size=4808542&u=x_xitt&cid=c0debfdfc13115852259a7e225386ead@cweb014.nm&contentType=image/jpeg&filename=1747271399722.jpeg&org=1'>
+""",
+'html')
+msg.attach(html)
 msg['From'] = send_email
 msg['Subject'] = '네이버 뉴스랭킹 보냄'
 
@@ -89,7 +85,7 @@ msg['Subject'] = '네이버 뉴스랭킹 보냄'
 part = MIMEBase('application','octet-stream')
 
 # 파일 읽어오기
-with open('webdata/w0514/news.csv','rb') as f:
+with open('w0515/news.csv','rb') as f:
     # part에 담기
     part.set_payload(f.read())
     
@@ -106,9 +102,7 @@ s = smtplib.SMTP(smtpName,smtpPort)
 s.starttls()
 s.login(send_email,password)
 
-for m in recvMails:
-    msg['To'] = m
-    s.sendmail(send_email,m,msg.as_string())
+s.sendmail(send_email,recvMails,msg.as_string())
 s.close()
 
 print('메일이 발송되었습니다.')
